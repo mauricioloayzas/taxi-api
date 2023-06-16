@@ -1,9 +1,9 @@
 version: '3'
 services:
   #MySQL Service
-  saintseiyadb:
+  db-taxi:
     image: mysql:8.0
-    container_name: taxi-db
+    container_name: db-taxi
     restart: unless-stopped
     tty: true
     ports:
