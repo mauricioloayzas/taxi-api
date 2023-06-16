@@ -1,0 +1,69 @@
+version: '3'
+services:
+  #MySQL Service
+  saintseiyadb:
+    image: mysql:8.0
+    container_name: taxi-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: taxi
+      MYSQL_ROOT_PASSWORD: taxipass
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/my.cnf
+    networks:
+      - network-taxi
+
+  #PHP Service
+  app-taxi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+        - 9000
+    image: digitalocean.com/php
+    container_name: app-taxi
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    extra_hosts:
+        - "host.docker.internal:host-gateway"
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./php/conf.d/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+    networks:
+      - network-taxi
+
+  #Nginx Service
+  webserver-taxi:
+    image: nginx:alpine
+    container_name: webserver-taxi
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - network-taxi
+
+#Docker Networks
+networks:
+  network-taxi:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local
