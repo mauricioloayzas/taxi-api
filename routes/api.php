@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});*/
+
+Route::controller(Admin\UserController::class)->prefix('users')->group(function(){
+    Route::get('', 'index');
+    Route::get('{id}', 'get');
+    Route::post('', 'store');
+    Route::put('{id}', 'update');
+    Route::put('{id}/status/{status}', 'changeStatus');
+    Route::delete('{id}', 'remove');
 });

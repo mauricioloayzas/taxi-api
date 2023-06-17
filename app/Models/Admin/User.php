@@ -1,13 +1,23 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Admin;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\ApiStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @OA\Schema(
+ *     @OA\Xml(name="User"),
+ *     @OA\Property(property="id", type="integer", example="1"),
+ *     @OA\Property(property="email", type="string", format="email", description="User unique email address", example="user@gmail.com"),
+ *     @OA\Property(property="password", type="string", description="User password"),
+ *     @OA\Property(property="status", type="string", description="User status", example="Active"),
+ * )
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -21,6 +31,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status'
     ];
 
     /**
@@ -40,6 +51,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'password'          => 'hashed',
+        'status'            => ApiStatuses::class
     ];
 }

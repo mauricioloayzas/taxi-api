@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('status', [
+                \App\Enums\ApiStatuses::ACTIVE,
+                \App\Enums\ApiStatuses::INACTIVE,
+                \App\Enums\ApiStatuses::PENDING,
+                \App\Enums\ApiStatuses::TERMINATED
+            ])->default(\App\Enums\ApiStatuses::ACTIVE);
             $table->rememberToken();
             $table->timestamps();
         });
