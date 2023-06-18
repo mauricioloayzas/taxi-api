@@ -12,10 +12,11 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * @OA\Schema(
  *     @OA\Xml(name="User"),
+ *     required={"name","email","password","status"},
  *     @OA\Property(property="id", type="integer", example="1"),
- *     @OA\Property(property="email", type="string", format="email", description="User unique email address", example="user@gmail.com"),
- *     @OA\Property(property="password", type="string", description="User password"),
- *     @OA\Property(property="status", type="string", description="User status", example="Active"),
+ *     @OA\Property(property="name", type="string", description="User name"),
+ *     @OA\Property(property="email", type="string", description="User unique email address"),
+ *     @OA\Property(property="status", type="string", description="User status"),
  * )
  */
 class User extends Authenticatable

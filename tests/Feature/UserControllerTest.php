@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\ApiStatuses;
 use App\Models\Admin\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class UserControllerTest extends \Tests\TestCase
 {
@@ -51,29 +52,37 @@ class UserControllerTest extends \Tests\TestCase
 
     public function test_should_update_a_user_correctly()
     {
-        $response = $this->putJson('api/users/20', ['name' => 'updated name'])
-            ->assertStatus(Response::HTTP_OK)->json();
+        $response = $this->putJson('api/users/20', [
+            'name' => 'updated name',
+            'email'     => 'email@updated.test',
+            'password'  => Hash::make('password'),
+            'status'    => ApiStatuses::ACTIVE
+        ])->assertStatus(Response::HTTP_OK)->json();
         $this->assertEquals('updated name', $response['name']);
     }
 
     public function test_should_update_with_404_error_if_user_does_not_exists()
     {
-        $response = $this->putJson('api/users/999999', ['name' => 'updated name'])
-            ->assertStatus(Response::HTTP_NOT_FOUND)->json();
+        $response = $this->putJson('api/users/999999', [
+            'name' => 'updated name',
+            'email'     => 'email@updated.test',
+            'password'  => Hash::make('password'),
+            'status'    => ApiStatuses::ACTIVE
+        ])->assertStatus(Response::HTTP_NOT_FOUND)->json();
 
         $this->assertEquals('The user does not exists.', $response['message']);
     }
 
     public function test_should_change_a_user_status_correctly()
     {
-        $response = $this->putJson('api/users/20/status/Inactive', [])
+        $response = $this->putJson('api/users/25/status/Inactive', [])
             ->assertStatus(Response::HTTP_OK)->json();
         $this->assertEquals('Inactive', $response['status']);
     }
 
     public function test_should_delete_a_user_correctly()
     {
-        $this->deleteJson('api/users/22')->assertStatus(Response::HTTP_NO_CONTENT);
+        $this->deleteJson('api/users/25')->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     public function test_should_delete_with_404_error_if_user_does_not_exists()

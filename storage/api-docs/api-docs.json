@@ -66,7 +66,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/UserRequest"
                             }
                         }
                     }
@@ -82,8 +82,20 @@
                             }
                         }
                     },
-                    "default": {
-                        "description": "We have an error"
+                    "400": {
+                        "description": "We have an error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -148,7 +160,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/UserRequest"
                             }
                         }
                     }
@@ -260,26 +272,64 @@
     },
     "components": {
         "schemas": {
+            "UserRequest": {
+                "required": [
+                    "name",
+                    "password",
+                    "status",
+                    "email"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The name of the user.",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "The user's password.",
+                        "type": "string",
+                        "format": "password"
+                    },
+                    "status": {
+                        "description": "The status of the user (Active,Inactive,Pending,Terminated).",
+                        "type": "string",
+                        "enum": [
+                            "Active",
+                            "Inactive",
+                            "Pending",
+                            "Terminated"
+                        ]
+                    },
+                    "email": {
+                        "description": "The email address of the user.",
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "status"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": "1"
                     },
+                    "name": {
+                        "description": "User name",
+                        "type": "string"
+                    },
                     "email": {
                         "description": "User unique email address",
-                        "type": "string",
-                        "format": "email",
-                        "example": "user@gmail.com"
-                    },
-                    "password": {
-                        "description": "User password",
                         "type": "string"
                     },
                     "status": {
                         "description": "User status",
-                        "type": "string",
-                        "example": "Active"
+                        "type": "string"
                     }
                 },
                 "type": "object",

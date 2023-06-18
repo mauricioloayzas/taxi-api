@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UserRequest;
 use App\Models\Admin\User;
+use App\Repositories\Admin\UserRepository;
 use App\Services\Admin\UserService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @OA\Info(title="API Taxis", version="1.0")
@@ -123,7 +126,7 @@ class UserController extends Controller
      *     summary="Create  a new user",
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *         @OA\JsonContent(ref="#/components/schemas/UserRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -131,19 +134,29 @@ class UserController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/User")
      *     ),
      *     @OA\Response(
-     *         response="default",
-     *         description="We have an error"
+     *         response="400",
+     *         description="We have an error",
+     *         @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *         )
      *     )
      * )
      *
-     * @param Request $request
+     * @param UserRequest $request
      *
      * @return JsonResponse
      *
      */
-    public function store(Request $request): JsonResponse
+    public function store(UserRequest $request): JsonResponse
     {
         $newUser = $request->all();
+        $user = $this->userService->getUserByEmail($newUser['email']);
+        if($user){
+            return response()->json(
+                ['message' => "Exist and user with this email."],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
         return response()->json($this->userService->createUser($newUser), Response::HTTP_CREATED);
     }
 
@@ -159,7 +172,7 @@ class UserController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *         @OA\JsonContent(ref="#/components/schemas/UserRequest")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -175,19 +188,26 @@ class UserController extends Controller
      *     )
      * )
      *
-     * @param Request $request
+     * @param UserRequest $request
      *
      * @return JsonResponse
      *
      */
-    public function update(Request $request): JsonResponse
+    public function update(UserRequest $request): JsonResponse
     {
         $userId = $request->route('id');
-        $newUser = $request->all();
-
         try {
             $result = $this->userService->getUserById($userId);
-            return response()->json($this->userService->updateUser($userId, $newUser), Response::HTTP_OK);
+            try {
+                $newUser = $request->all();
+                return response()->json($this->userService->updateUser($userId, $newUser), Response::HTTP_OK);
+            }catch (ValidationException $exception){
+                $errors = $exception->validator->errors()->all();
+                return response()->json([
+                    'errors'    => $errors,
+                    'message'   => 'Some is wrong in the request'
+                ], Response::HTTP_BAD_REQUEST);
+            }
         }catch (ModelNotFoundException $e){
             return response()->json(
                 ['message' => "The user does not exists."],

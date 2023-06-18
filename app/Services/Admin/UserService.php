@@ -49,6 +49,15 @@ class UserService
     }
 
     /**
+     * @param string $email
+     * @return User|null
+     */
+    public function getUserByEmail(string $email): User|null
+    {
+        return  $this->userRepository->getUserByEmail($email);
+    }
+
+    /**
      * Create a user.
      *
      * @param mixed $newUser
